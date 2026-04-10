@@ -4,10 +4,50 @@ import java.util.Scanner;
 public class StreamingMusica {
 
     static class Musica {
-        String nome;
-        String artista;
-        String duracao;
-        String genero;
+        private String nome;
+        private String artista;
+        private String duracao;
+        private String genero;
+
+        public Musica(String nome, String artista, int duracaoSegundos, String genero) {
+            setNome(nome);
+            setArtista(artista);
+            setDuracao(duracaoSegundos);
+            setGenero(genero);
+        }
+
+        public String getNome() { return nome; }
+        public String getArtista() { return artista; }
+        public String getDuracao() { return duracao; }
+        public String getGenero() { return genero; }
+
+        public void setNome(String nome) {
+            if (nome != null && !nome.isEmpty()) this.nome = nome;
+            else System.out.println("Nome inválido!");
+        }
+
+        public void setArtista(String artista) {
+            if (artista != null && !artista.isEmpty()) this.artista = artista;
+            else System.out.println("Artista inválido!");
+        }
+
+        public void setDuracao(int segundos) {
+            if (segundos > 0) this.duracao = formatarDuracao(segundos);
+            else System.out.println("Duração inválida!");
+        }
+
+        public void setGenero(String genero) {
+            if (genero != null) {
+                genero = genero.toLowerCase();
+                for (String g : generosValidos) {
+                    if (g.equals(genero)) {
+                        this.genero = genero;
+                        return;
+                    }
+                }
+            }
+            System.out.println("Gênero inválido!");
+        }
     }
 
     static ArrayList<Musica> musicas = new ArrayList<>();
@@ -16,7 +56,6 @@ public class StreamingMusica {
     static String[] generosValidos = {"pop", "rock", "jazz", "eletronica", "hiphop", "classica"};
 
     public static void main(String[] args) {
-
         adicionarMusicasTeste();
 
         int opcao;
@@ -31,13 +70,55 @@ public class StreamingMusica {
         scanner.close();
     }
 
-    public static void limparTela() {
-        for (int i = 0; i < 40; i++) System.out.println();
+    public static void cadastrarMusica() {
+
+        System.out.println("\n--- CADASTRAR MÚSICA ---");
+
+        System.out.print("Nome: ");
+        String nome = scanner.nextLine();
+
+        System.out.print("Artista: ");
+        String artista = scanner.nextLine();
+
+        int segundos;
+        while (true) {
+            try {
+                System.out.print("Duração (segundos): ");
+                segundos = Integer.parseInt(scanner.nextLine());
+                if (segundos > 0) break;
+            } catch (Exception ignored) {}
+            System.out.println("Valor inválido!");
+        }
+
+        System.out.print("Gênero: ");
+        String genero = scanner.nextLine();
+
+        Musica m = new Musica(nome, artista, segundos, genero);
+
+        musicas.add(m);
+        System.out.println("Música cadastrada!");
     }
 
-    public static void pausar() {
-        System.out.println("\nPressione ENTER para continuar...");
-        scanner.nextLine();
+    public static void listarMusicas() {
+        System.out.println("\n--- MÚSICAS ---");
+
+        if (musicas.isEmpty()) {
+            System.out.println("Nenhuma música cadastrada!");
+            return;
+        }
+
+        for (int i = 0; i < musicas.size(); i++) {
+            Musica m = musicas.get(i);
+            System.out.println((i + 1) + ". " +
+                    m.getNome() + " | " +
+                    m.getArtista() + " | " +
+                    m.getDuracao() + " | " +
+                    m.getGenero());
+        }
+    }
+
+    public static void limparTela() {
+        for (int i = 0; i < 40; i++) System.out.println();
     }
 
     public static void exibirMenu() {
@@ -55,13 +136,12 @@ public class StreamingMusica {
     public static int lerOpcao() {
         try {
             return Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             return -1;
         }
     }
 
     public static void processarOpcao(int opcao) {
-
         switch (opcao) {
             case 1 -> cadastrarMusica();
             case 2 -> listarMusicas();
@@ -69,75 +149,8 @@ public class StreamingMusica {
             case 4 -> buscarPorArtista();
             case 5 -> buscarPorGenero();
             case 6 -> estatisticas();
-            case 0 -> System.out.println("Encerrando Programa...");
+            case 0 -> System.out.println("Encerrando...");
             default -> System.out.println("Opção inválida!");
-        }
-        pausar();
-    }
-
-    public static void cadastrarMusica() {
-
-        Musica m = new Musica();
-
-        System.out.println("\n--- CADASTRAR MÚSICA ---");
-
-        while (true) {
-            System.out.print("Nome: ");
-            m.nome = scanner.nextLine().trim();
-            if (!m.nome.isEmpty()) break;
-            System.out.println("Não pode ser vazio!");
-        }
-
-        while (true) {
-            System.out.print("Artista: ");
-            m.artista = scanner.nextLine().trim();
-            if (!m.artista.isEmpty()) break;
-            System.out.println("Não pode ser vazio!");
-        }
-
-        int segundos;
-        while (true) {
-            try {
-                System.out.print("Duração (segundos): ");
-                segundos = Integer.parseInt(scanner.nextLine());
-                if (segundos > 0) break;
-            } catch (Exception ignored) {}
-            System.out.println("Valor inválido!");
-        }
-
-        m.duracao = formatarDuracao(segundos);
-
-        while (true) {
-            System.out.print("Gênero: ");
-            m.genero = scanner.nextLine().toLowerCase();
-
-            boolean valido = false;
-            for (String g : generosValidos) {
-                if (g.equals(m.genero)) {
-                    valido = true;
-                    break;
-                }
-            }
-
-            if (valido) break;
-            System.out.println("Gênero inválido!");
-        }
-
-        musicas.add(m);
-        System.out.println("Música cadastrada!");
-    }
-
-    public static void listarMusicas() {
-        System.out.println("\n--- MÚSICAS ---");
-
-        if (musicas.isEmpty()) {
-            System.out.println("Nenhuma música cadastrada!");
-            return;
-        }
-
-        for (int i = 0; i < musicas.size(); i++) {
-            Musica m = musicas.get(i);
-            System.out.println((i + 1) + ". " + m.nome + " | " + m.artista + " | " + m.duracao + " | " + m.genero);
         }
     }
 
@@ -148,8 +161,8 @@ public class StreamingMusica {
         boolean encontrou = false;
 
         for (Musica m : musicas) {
-            if (m.nome.toLowerCase().contains(busca)) {
-                System.out.println(m.nome + " | " + m.artista + " | " + m.duracao + " | " + m.genero);
+            if (m.getNome().toLowerCase().contains(busca)) {
+                System.out.println(m.getNome() + " | " + m.getArtista() + " | " + m.getDuracao() + " | " + m.getGenero());
                 encontrou = true;
             }
         }
@@ -164,8 +177,8 @@ public class StreamingMusica {
         boolean encontrou = false;
 
         for (Musica m : musicas) {
-            if (m.artista.toLowerCase().contains(busca)) {
-                System.out.println(m.nome + " | " + m.duracao + " | " + m.genero);
+            if (m.getArtista().toLowerCase().contains(busca)) {
+                System.out.println(m.getNome() + " | " + m.getDuracao() + " | " + m.getGenero());
                 encontrou = true;
             }
         }
@@ -180,8 +193,8 @@ public class StreamingMusica {
         boolean encontrou = false;
 
         for (Musica m : musicas) {
-            if (m.genero.equals(busca)) {
-                System.out.println(m.nome + " | " + m.artista + " | " + m.duracao);
+            if (m.getGenero().equals(busca)) {
+                System.out.println(m.getNome() + " | " + m.getArtista() + " | " + m.getDuracao());
                 encontrou = true;
             }
         }
@@ -200,7 +213,7 @@ public class StreamingMusica {
         int totalSegundos = 0;
 
         for (Musica m : musicas) {
-            String[] p = m.duracao.split(":");
+            String[] p = m.getDuracao().split(":");
             totalSegundos += Integer.parseInt(p[0]) * 60 + Integer.parseInt(p[1]);
         }
 
@@ -214,19 +227,7 @@ public class StreamingMusica {
     }
 
     public static void adicionarMusicasTeste() {
-        Musica m1 = new Musica();
-        m1.nome = "Bohemian Rhapsody";
-        m1.artista = "Queen";
-        m1.duracao = formatarDuracao(354);
-        m1.genero = "rock";
-
-        Musica m2 = new Musica();
-        m2.nome = "Billie Jean";
-        m2.artista = "Michael Jackson";
-        m2.duracao = formatarDuracao(293);
-        m2.genero = "pop";
-
-        musicas.add(m1);
-        musicas.add(m2);
+        musicas.add(new Musica("Bohemian Rhapsody", "Queen", 354, "rock"));
+        musicas.add(new Musica("Billie Jean", "Michael Jackson", 293, "pop"));
     }
 }
